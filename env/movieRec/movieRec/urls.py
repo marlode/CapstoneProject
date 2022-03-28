@@ -16,7 +16,10 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import include, path
 
+from movieHome import views as v
+
 urlpatterns = [
-    path('movieHome/', include('movieHome.urls')),
+    path('', include('django.contrib.auth.urls')),
+    path('', include('movieHome.urls')),
     path('admin/', admin.site.urls),
 ]

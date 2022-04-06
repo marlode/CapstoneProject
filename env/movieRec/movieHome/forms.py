@@ -1,3 +1,4 @@
+from cProfile import label
 from tkinter.messagebox import QUESTION
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
@@ -23,29 +24,57 @@ class PostForm(forms.ModelForm):
 
 
 class SurveyForm(forms.Form):
-    CHOICES =       (('a','Horror'),
-                    ('b','Action'),
-                    ('c','Romance'),
-                    ('d','Comedy'),)
-    CHOICESTWO =    (('a','Sad'),
-                    ('b','Happy'),
-                    ('c','Angry'),
-                    ('d','Lazy'),)
-    CHOICESTHREE =  (('a','Magic'),
-                    ('b','Computers'),
-                    ('c','Music'),
-                    ('d','Cats'),)
-    CHOICESFOUR =   (('a','Matters'),
-                    ('b','Doesn\'t Matter'))
-    CHOICESFIVE =   (('a','1 Star'),
-                    ('b','2 Stars'),
-                    ('c','3 Stars'),
-                    ('d','4 Stars'),
-                    ('e','5 Stars'),)
-    QUESTIONONE     = forms.MultipleChoiceField(label="Movie Genre:",choices=CHOICES, widget=forms.CheckboxSelectMultiple())  
-    QUESTIONTWO     = forms.MultipleChoiceField(label="Mood Today:",choices=CHOICESTWO, widget=forms.CheckboxSelectMultiple())  
-    QUESTIONTHREE   = forms.MultipleChoiceField(label="Topic:",choices=CHOICESTHREE, widget=forms.CheckboxSelectMultiple())
-    QUESTIONFOUR    = forms.MultipleChoiceField(label="Cast:",choices=CHOICESFOUR, widget=forms.CheckboxSelectMultiple())  
-    QUESTIONFIVE    = forms.MultipleChoiceField(label="Review Ratings:",choices=CHOICESFIVE, widget=forms.CheckboxSelectMultiple())
+    CHOICES =       (('Director','Director'),
+                    ('Actor','Actor'),
+                    ('No Preference','No Preference'),)
+    CHOICESTWO =    (('Sad','Sad'),
+                    ('Happy','Happy'),
+                    ('Neutral','Neutral'),)
+    CHOICESTHREE =  ((0,'Action'),
+                    (1,'Adventure'),
+                    (2,'Animation'),
+                    (3,'Comedy'),
+                    (4,'Crime'),
+                    (5,'Documentary'),
+                    (6,'Drama'),
+                    (7,'Family'),
+                    (8,'Fantasy'),
+                    (9,'History'),
+                    (10,'Horror'),
+                    (11,'Music'),
+                    (12,'Mystery'),
+                    (13,'Romance'),
+                    (14,'Science Fiction'),
+                    (15,'TV Movie'),
+                    (16,'Thriller'),
+                    (17,'War'),
+                    (18,'Western'),)
+    CHOICESFOUR =   ((2020,'2020s'),
+                    (2010,'2010s'),
+                    (2000,'2000s'),
+                    (1990,'1990s'),
+                    (1980,'1980s'),
+                    (1970,'1970s'),
+                    (1960,'1960s'),)
+    CHOICESFIVE =   ((0,'1 Star'),
+                    (2,'2 Stars'),
+                    (4,'3 Stars'),
+                    (6,'4 Stars'),
+                    (8,'5 Stars'),)
+
+    CHOICESSIX =   (('Heist','Heist'),
+                    ('Space','Space'),
+                    ('True Story','True Story'),
+                    ('Sports','Sports'),
+                    ('No Preference','No Preference'),)
+    QUESTIONONE     = forms.ChoiceField(label="Choose Preferred Director, Actor, or No Preference:",choices=CHOICES, widget=forms.RadioSelect())  
+    PERSON_CHOICE   = forms.CharField(label="Name of Actor/Director, ex: Tom Hanks (leave empty if No Preference):", required=False)
+    QUESTIONTWO     = forms.ChoiceField(label="Choose Movie Mood:",choices=CHOICESTWO, widget=forms.RadioSelect())  
+    QUESTIONTHREE   = forms.ChoiceField(label="Choose Preferred Movie Genres:",choices=CHOICESTHREE, widget=forms.RadioSelect())
+    QUESTIONFOUR    = forms.ChoiceField(label="Choose Preferred Decade:",choices=CHOICESFOUR, widget=forms.RadioSelect())  
+    QUESTIONFIVE    = forms.ChoiceField(label="Choose Preferred Rating:",choices=CHOICESFIVE, widget=forms.RadioSelect())
+    QUESTIONSIX     = forms.ChoiceField(label="Choose Preferred Settings:",choices=CHOICESSIX, widget=forms.RadioSelect())
+    
+    
 
     

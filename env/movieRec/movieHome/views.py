@@ -1,4 +1,5 @@
 from multiprocessing import context
+import re
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required, permission_required
@@ -6,6 +7,8 @@ from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.models import User, Group
 from .models import Post
 from .forms import RegisterForm, PostForm, SurveyForm
+import requests
+
 
 
 def movie_rec(request):
@@ -13,21 +16,57 @@ def movie_rec(request):
     if request.method == 'POST':
         form = SurveyForm(request.POST)
         if form.is_valid():
-            q1= form.cleaned_data.get("QUESTIONONE")
-            q2= form.cleaned_data.get("QUESTIONTWO")
-            q3= form.cleaned_data.get("QUESTIONTHREE")
-            q4= form.cleaned_data.get("QUESTIONFOUR")
-            q5= form.cleaned_data.get("QUESTIONFIVE")
+            q1 = form.cleaned_data.get("QUESTIONONE") #Director/Actor Preferences\
+            q1q1 = form.cleaned_data.get("PERSON_CHOICE") #Name of Person
+            q2 = form.cleaned_data.get("QUESTIONTWO") #Mood
+            q3 = form.cleaned_data.get("QUESTIONTHREE") #Genre
+            q4 = form.cleaned_data.get("QUESTIONFOUR") #Decade Preference
+            q5 = form.cleaned_data.get("QUESTIONFIVE") #Rating
+            q6 = form.cleaned_data.get("QUESTIONSIX") #Story Setting
 
-            #I have to figure out how to get this data to display here so i can write the algorithm that determines what movie gets displayed on the home screen
+            #q4 plus 10 for decade (ex: q4=2000 so q4w10 = 2010 for decade 2000-2010)
+            q4w10 = int(q4) + 10
+            #q5 plus 2 for rating (ex: q5=0 (1 star) so q5w2 = 2 for voting average between 0 and 2)
+            q5w2 = int(q5) + 2
 
-            context={'form':form, 'q1':q1, 'q2':q2, 'q3':q3, 'q4':q4, 'q5': q5}
 
-            return HttpResponse(context)
+            #Get Genres from MovieDB
+            genreRequest = requests.get("https://api.themoviedb.org/3/genre/movie/list?api_key=e07e6fbbed1779475f88f21defbf334a&language=en-US")
+            genre = genreRequest.json()['genres'][int(q3)]['id']
+
+            #Get Person ID from MovieDB, if length of q1q1 is 0 it means there is no preference so a person request isn't necessary
+            person = None
+            if (len(q1q1) != 0):
+                name = str(q1q1).split()
+                fName = name[0]
+                lName = name[1]
+                personRequest = requests.get(f"https://api.themoviedb.org/3/search/person?api_key=e07e6fbbed1779475f88f21defbf334a&language=en-US&query={fName}%20{lName}&page=1&include_adult=false")
+                person = personRequest.json()['results'][0]['id']
+
+            #find the 1st movie that best matches all our criteria
+            movieRequest = requests.get(f"https://api.themoviedb.org/3/discover/movie?api_key=e07e6fbbed1779475f88f21defbf334a&language=en-US&sort_by=popularity.desc&include_adult=false&include_video=false&page=1&primary_release_date.gte={q4}&primary_release_date.lte={q4w10}&vote_average.gte={q5}&vote_average.lte={q5w2}&with_crew={person}&with_genres={genre}&with_watch_monetization_types=flatrate")
+            movie = movieRequest.json()['results'][0]
+
+            #Calls a Sentiment-Analysis API and checks Movie Overview for Sentiment
+            r = requests.post("https://api.deepai.org/api/sentiment-analysis",
+                data={
+                    'text': movie['overview'],
+                },
+                headers={'api-key': 'bce4e272-6788-475b-81df-20d60bc29749'}
+            )
+            text_sentiment = r.json()
+            
+
+            #Movie Poster for Movie Chosen
+            imgurl = (f"https://www.themoviedb.org/t/p/w440_and_h660_face/{(movie['poster_path'])}")
+           
+            context={"data" : [q1,q1q1,q2,q3,q4,q5,q6], "movie": movie, 'imgurl': imgurl, 'text': text_sentiment}
+
+            return render(request,"movie.html", context)
     else:
         form = SurveyForm()
 
-    return render(request, 'survey.html', {"form": form})
+    return render(request, "survey.html", {"form": form})
 
 
 @login_required(login_url="/login")

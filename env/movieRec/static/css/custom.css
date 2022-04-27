@@ -1,0 +1,17 @@
+.custom-background{
+    background-image: url(../images/moviereel.jpg);
+    height:100vh;
+    background-size: cover;
+    background-position: center;
+}
+
+.custom-nav:hover{
+
+    background-color: #ee3d3d;
+    border-color: #ffffff;
+    
+}
+
+.nav-pills > li.active > a{
+    color: #ee3d3d;
+}

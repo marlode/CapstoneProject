@@ -4,8 +4,32 @@
 {% block content %}
 
 <form method="post">
-  {% csrf_token %}{{form|crispy}}
-  <p>Have an account? Login <a href="/login">Here</a>!</p>
-  <button type="submit" class="btn btn-success">Register</button>
+  {% csrf_token %}
+
+
+  <div class="card mt-4 text-white bg-dark border-secondary">
+    <div class="card-header border-secondary">
+      <h4>Register</h4>
+    </div>
+    <div class="card-body">
+      <div class="lead">
+        {{ form.username|as_crispy_field }}
+      
+        {{ form.email|as_crispy_field }}
+
+        {{ form.password1|as_crispy_field }}
+      
+        {{ form.password2|as_crispy_field }}
+
+        <p>Have an account? Login <a href="/login">Here</a>!</p>
+        <button type="submit" class="btn btn-success">Register</button>
+      </div>
+    </div>
+  </div>
+
+  
 </form>
+
+
+
 {% endblock %}

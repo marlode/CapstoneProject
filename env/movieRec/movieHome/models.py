@@ -12,3 +12,10 @@ class Post(models.Model):
 
     def __str__(self):
         return self.title + "\n" + self.description
+
+class Survey(models.Model):
+    que_id = models.AutoField(primary_key=True)
+    que = models.CharField(max_length=256)
+
+    def __str__(self):
+        return self.que_id

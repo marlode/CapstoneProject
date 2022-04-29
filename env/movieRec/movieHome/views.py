@@ -111,7 +111,6 @@ def get_movie (q1,q1name,q2,q3,q4,q5,q6):
 
 
 def survey(request):
-    
 
     if request.method == 'POST':
         form = SurveyForm(request.POST)

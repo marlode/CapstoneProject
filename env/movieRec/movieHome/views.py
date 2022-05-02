@@ -11,26 +11,34 @@ import requests
 def get_movie (q1,q1name,q2,q3,q4,q5,q6):
 
     arr = [q3,q4,q5,q6]
-   
+
+    #set each item with no preference to empty '' so that it does not affect api call
     for item in arr:
         if (item == 'No Preference'):
-            item = ''
+            if (item == q3):
+                q3 = ''
+            elif (item == q4):
+                q4 = ''
+            elif (item == q5):
+                q5 = ''
+            elif (item == q6):
+                q6 = ''
 
     #The variables below are used for the API call to create a range between two numbers
     #q4 plus 10 for decade (ex: q4=2000 so q4w10 = 2010 for decade 2000-2010)
-    if (q4 == ''):
+    if (q4 != ''):
         q4w10 = int(q4) + 10
     else:
         q4w10 = ''
 
-    if(q5 == ''):
+    if(q5 != ''):
     #q5 plus 2 for rating (ex: q5=0 (1 star) so q5w2 = 2 for voting average between 0 and 2)
         q5w2 = int(q5) + 2
     else:
         q5w2 = ''
 
     #Get Genres from MovieDB and the id that matches the genre specified by the user
-    if(q3 == ''):
+    if(q3 != ''):
         genreRequest = requests.get("https://api.themoviedb.org/3/genre/movie/list?api_key=e07e6fbbed1779475f88f21defbf334a&language=en-US")
         genre = genreRequest.json()['genres'][int(q3)]['id']
     else:
@@ -46,7 +54,7 @@ def get_movie (q1,q1name,q2,q3,q4,q5,q6):
         person = personRequest.json()['results'][0]['id']
 
     #call movie api for keyword ids based on question 6 and pick first id
-    if(q6 == ''):
+    if(q6 != ''):
         keywordRequest = requests.get(f"https://api.themoviedb.org/3/search/keyword?api_key=e07e6fbbed1779475f88f21defbf334a&query={q6}&page=1")
         keyword_id = keywordRequest.json()['results'][0]['id']
     else:
@@ -96,8 +104,8 @@ def get_movie (q1,q1name,q2,q3,q4,q5,q6):
         if (i == results_length and movieRequest.json()['total_pages'] > j):
             j            += 1
             i            = 0
-            movieRequest = requests.get(f"https://api.themoviedb.org/3/discover/movie?api_key=e07e6fbbed1779475f88f21defbf334a&language=en-US&sort_by=popularity.desc&include_adult=false&include_video=false&page={j}&primary_release_date.gte={q4}&primary_release_date.lte={q4w10}&vote_average.gte={q5}&vote_average.lte={q5w2}&with_crew={person}&with_genres={genre}&with_watch_monetization_types=flatrate")
-            url          = f"https://api.themoviedb.org/3/discover/movie?api_key=e07e6fbbed1779475f88f21defbf334a&language=en-US&sort_by=popularity.desc&include_adult=false&include_video=false&page={j}&primary_release_date.gte={q4}&primary_release_date.lte={q4w10}&vote_average.gte={q5}&vote_average.lte={q5w2}&with_crew={person}&with_genres={genre}&with_watch_monetization_types=flatrate"
+            movieRequest = requests.get(f"https://api.themoviedb.org/3/discover/movie?api_key=e07e6fbbed1779475f88f21defbf334a&language=en-US&sort_by=popularity.desc&include_adult=false&include_video=false&page={j}&with_keywords={keyword_id}&primary_release_date.gte={q4}&primary_release_date.lte={q4w10}&vote_average.gte={q5}&vote_average.lte={q5w2}&with_crew={person}&with_genres={genre}&with_watch_monetization_types=flatrate")
+            url          = f"https://api.themoviedb.org/3/discover/movie?api_key=e07e6fbbed1779475f88f21defbf334a&language=en-US&sort_by=popularity.desc&include_adult=false&include_video=false&page={j}&with_keywords={keyword_id}&primary_release_date.gte={q4}&primary_release_date.lte={q4w10}&vote_average.gte={q5}&vote_average.lte={q5w2}&with_crew={person}&with_genres={genre}&with_watch_monetization_types=flatrate"
 
         elif(i == results_length and movieRequest.json()['total_pages'] == j):
             break
@@ -106,7 +114,7 @@ def get_movie (q1,q1name,q2,q3,q4,q5,q6):
     #Movie Poster for Movie Chosen
     poster = (f"https://www.themoviedb.org/t/p/original/{(movie_from_api['poster_path'])}")
     backdrop = (f"https://www.themoviedb.org/t/p/original/{(movie_from_api['backdrop_path'])}")
-    context={"data" : [q1,q1name,q2,q3,q4,q5,q6], 'imgurl': poster, 'movie': movie_from_api, 'overview': movie_from_api['overview'], 'title': movie_from_api['original_title'], 'backdrop': backdrop}
+    context={"data" : [q1,q1name,q2,q3,q4,q5,q6], 'imgurl': poster, 'movie': movie_from_api, 'overview': movie_from_api['overview'], 'title': movie_from_api['original_title'], 'backdrop': backdrop, 'arr': arr, 'url': url}
     return context
 
 
